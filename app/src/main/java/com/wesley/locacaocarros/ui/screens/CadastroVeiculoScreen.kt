@@ -1,0 +1,121 @@
+package com.wesley.locacaocarros.ui.screens
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.wesley.locacaocarros.viewmodel.VeiculoViewModel
+
+@Composable
+fun CadastroVeiculoScreen(
+    viewModel: VeiculoViewModel,
+    onVeiculoSalvo: () -> Unit
+) {
+
+    var marca by remember { mutableStateOf("") }
+    var modelo by remember { mutableStateOf("") }
+    var placa by remember { mutableStateOf("") }
+    var ano by remember { mutableStateOf("") }
+    var valorDiaria by remember { mutableStateOf("") }
+
+    var mensagemErro by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+
+        Text("Cadastrar veículo")
+
+        OutlinedTextField(
+            value = marca,
+            onValueChange = { marca = it },
+            label = { Text("Marca") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = modelo,
+            onValueChange = { modelo = it },
+            label = { Text("Modelo") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = placa,
+            onValueChange = { placa = it.uppercase() },
+            label = { Text("Placa") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = ano,
+            onValueChange = { ano = it },
+            label = { Text("Ano") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = valorDiaria,
+            onValueChange = { valorDiaria = it },
+            label = { Text("Valor da diária") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        if (mensagemErro.isNotEmpty()) {
+            Text(mensagemErro)
+        }
+
+        Button(
+            onClick = {
+
+                val anoConvertido = ano.toIntOrNull()
+                val diariaConvertida =
+                    valorDiaria.replace(",", ".").toDoubleOrNull()
+
+                if (
+                    marca.isBlank() ||
+                    modelo.isBlank() ||
+                    placa.isBlank() ||
+                    anoConvertido == null ||
+                    diariaConvertida == null
+                ) {
+
+                    mensagemErro = "Preencha todos os campos corretamente."
+
+                } else if (diariaConvertida <= 0) {
+
+                    mensagemErro = "O valor da diária deve ser positivo."
+
+                } else {
+
+                    viewModel.cadastrarVeiculo(
+                        marca = marca,
+                        modelo = modelo,
+                        placa = placa,
+                        ano = anoConvertido,
+                        valorDiaria = diariaConvertida
+                    )
+
+                    onVeiculoSalvo()
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Salvar veículo")
+        }
+    }
+}
