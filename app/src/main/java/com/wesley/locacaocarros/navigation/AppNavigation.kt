@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wesley.locacaocarros.ui.screens.CadastroVeiculoScreen
 import com.wesley.locacaocarros.ui.screens.ContatosScreen
+import com.wesley.locacaocarros.ui.screens.LocacoesAtivasScreen
 import com.wesley.locacaocarros.ui.screens.NovaLocacaoScreen
 import com.wesley.locacaocarros.ui.screens.VeiculosScreen
 import com.wesley.locacaocarros.viewmodel.LocacaoViewModel
@@ -35,6 +36,9 @@ fun AppNavigation(
                 },
                 onNovaLocacao = {
                     navController.navigate("nova_locacao")
+                },
+                onLocacoesAtivas = {
+                    navController.navigate("locacoes_ativas")
                 }
             )
         }
@@ -74,6 +78,12 @@ fun AppNavigation(
                 onContatoSelecionado = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable("locacoes_ativas") {
+            LocacoesAtivasScreen(
+                viewModel = locacaoViewModel
             )
         }
     }

@@ -27,7 +27,8 @@ fun VeiculosScreen(
     viewModel: VeiculoViewModel,
     onNovoVeiculo: () -> Unit,
     onAbrirContatos: () -> Unit,
-    onNovaLocacao: () -> Unit
+    onNovaLocacao: () -> Unit,
+    onLocacoesAtivas: () -> Unit
 ) {
 
     val veiculos by viewModel.veiculos.collectAsStateWithLifecycle()
@@ -79,6 +80,15 @@ fun VeiculosScreen(
                 ) {
                     Text("Nova locação")
                 }
+            }
+
+            Button(
+                onClick = onLocacoesAtivas,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            ) {
+                Text("Locações ativas")
             }
 
             if (veiculos.isEmpty()) {
