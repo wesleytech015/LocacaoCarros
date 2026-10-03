@@ -3,11 +3,13 @@ package com.wesley.locacaocarros.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -23,8 +25,11 @@ import com.wesley.locacaocarros.viewmodel.VeiculoViewModel
 @Composable
 fun VeiculosScreen(
     viewModel: VeiculoViewModel,
-    onNovoVeiculo: () -> Unit
+    onNovoVeiculo: () -> Unit,
+    onAbrirContatos: () -> Unit,
+    onNovaLocacao: () -> Unit
 ) {
+
     val veiculos by viewModel.veiculos.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -53,6 +58,29 @@ fun VeiculosScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = 16.dp,
+                        bottom = 8.dp
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                Button(
+                    onClick = onAbrirContatos
+                ) {
+                    Text("Contatos")
+                }
+
+                Button(
+                    onClick = onNovaLocacao
+                ) {
+                    Text("Nova locação")
+                }
+            }
+
             if (veiculos.isEmpty()) {
 
                 Text(
@@ -64,7 +92,9 @@ fun VeiculosScreen(
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 16.dp),
+                    contentPadding = PaddingValues(
+                        vertical = 16.dp
+                    ),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
 
@@ -83,10 +113,23 @@ fun VeiculosScreen(
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
-                                Text("Placa: ${veiculo.placa}")
-                                Text("Ano: ${veiculo.ano}")
-                                Text("Diária: R$ %.2f".format(veiculo.valorDiaria))
-                                Text("Status: ${veiculo.status}")
+                                Text(
+                                    text = "Placa: ${veiculo.placa}"
+                                )
+
+                                Text(
+                                    text = "Ano: ${veiculo.ano}"
+                                )
+
+                                Text(
+                                    text = "Diária: R$ %.2f".format(
+                                        veiculo.valorDiaria
+                                    )
+                                )
+
+                                Text(
+                                    text = "Status: ${veiculo.status}"
+                                )
                             }
                         }
                     }
