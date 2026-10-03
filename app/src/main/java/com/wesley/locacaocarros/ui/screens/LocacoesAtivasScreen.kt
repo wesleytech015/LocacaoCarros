@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -82,11 +83,19 @@ fun LocacoesAtivasScreen(
                             )
 
                             Text(
-                                text = "Saída: ${formatarData(item.locacao.dataSaida)}"
+                                text = "Saída: ${
+                                    formatarData(
+                                        item.locacao.dataSaida
+                                    )
+                                }"
                             )
 
                             Text(
-                                text = "Entrega: ${formatarData(item.locacao.dataEntregaPrevista)}"
+                                text = "Entrega: ${
+                                    formatarData(
+                                        item.locacao.dataEntregaPrevista
+                                    )
+                                }"
                             )
 
                             Text(
@@ -98,6 +107,20 @@ fun LocacoesAtivasScreen(
                             Text(
                                 text = "Status: ${item.locacao.status}"
                             )
+
+                            Button(
+                                onClick = {
+                                    viewModel.finalizarLocacao(
+                                        locacaoId = item.locacao.id,
+                                        veiculoId = item.veiculo.id
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp)
+                            ) {
+                                Text("Finalizar locação")
+                            }
                         }
                     }
                 }

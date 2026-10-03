@@ -41,6 +41,7 @@ class LocacaoViewModel(
         val contato = contatoSelecionado ?: return
 
         viewModelScope.launch {
+
             repository.realizarLocacao(
                 contactId = contato.id.toLongOrNull() ?: 0L,
                 nomeCliente = contato.nome,
@@ -52,7 +53,21 @@ class LocacaoViewModel(
             )
 
             contatoSelecionado = null
+
             onSucesso()
+        }
+    }
+
+    fun finalizarLocacao(
+        locacaoId: Int,
+        veiculoId: Int
+    ) {
+        viewModelScope.launch {
+
+            repository.finalizarLocacao(
+                locacaoId = locacaoId,
+                veiculoId = veiculoId
+            )
         }
     }
 }

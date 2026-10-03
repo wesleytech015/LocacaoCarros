@@ -50,4 +50,20 @@ class LocacaoRepository(
             status = "ALUGADO"
         )
     }
+
+    suspend fun finalizarLocacao(
+        locacaoId: Int,
+        veiculoId: Int
+    ) {
+
+        locacaoDao.atualizarStatus(
+            locacaoId = locacaoId,
+            status = "FINALIZADA"
+        )
+
+        veiculoDao.atualizarStatus(
+            veiculoId = veiculoId,
+            status = "DISPONIVEL"
+        )
+    }
 }
