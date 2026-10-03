@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,6 +15,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.wesley.locacaocarros.viewmodel.VeiculoViewModel
 
@@ -43,48 +46,141 @@ fun CadastroVeiculoScreen(
         OutlinedTextField(
             value = marca,
             onValueChange = { marca = it },
-            label = { Text("Marca") },
+            label = {
+                Text(
+                    text = "Marca",
+                    color = Color.DarkGray
+                )
+            },
+            textStyle = TextStyle(
+                color = Color.Black
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedBorderColor = Color.DarkGray,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = modelo,
             onValueChange = { modelo = it },
-            label = { Text("Modelo") },
+            label = {
+                Text(
+                    text = "Modelo",
+                    color = Color.DarkGray
+                )
+            },
+            textStyle = TextStyle(
+                color = Color.Black
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedBorderColor = Color.DarkGray,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = placa,
-            onValueChange = { placa = it.uppercase() },
-            label = { Text("Placa") },
+            onValueChange = {
+                placa = it.uppercase()
+            },
+            label = {
+                Text(
+                    text = "Placa",
+                    color = Color.DarkGray
+                )
+            },
+            textStyle = TextStyle(
+                color = Color.Black
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedBorderColor = Color.DarkGray,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = ano,
             onValueChange = { ano = it },
-            label = { Text("Ano") },
+            label = {
+                Text(
+                    text = "Ano",
+                    color = Color.DarkGray
+                )
+            },
+            textStyle = TextStyle(
+                color = Color.Black
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedBorderColor = Color.DarkGray,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = valorDiaria,
             onValueChange = { valorDiaria = it },
-            label = { Text("Valor da diária") },
+            label = {
+                Text(
+                    text = "Valor da diária",
+                    color = Color.DarkGray
+                )
+            },
+            textStyle = TextStyle(
+                color = Color.Black
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedBorderColor = Color.DarkGray,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         if (mensagemErro.isNotEmpty()) {
-            Text(mensagemErro)
+            Text(
+                text = mensagemErro,
+                color = Color.Red
+            )
         }
 
         Button(
             onClick = {
 
                 val anoConvertido = ano.toIntOrNull()
+
                 val diariaConvertida =
-                    valorDiaria.replace(",", ".").toDoubleOrNull()
+                    valorDiaria
+                        .replace(",", ".")
+                        .toDoubleOrNull()
 
                 if (
                     marca.isBlank() ||
@@ -94,11 +190,13 @@ fun CadastroVeiculoScreen(
                     diariaConvertida == null
                 ) {
 
-                    mensagemErro = "Preencha todos os campos corretamente."
+                    mensagemErro =
+                        "Preencha todos os campos corretamente."
 
                 } else if (diariaConvertida <= 0) {
 
-                    mensagemErro = "O valor da diária deve ser positivo."
+                    mensagemErro =
+                        "O valor da diária deve ser positivo."
 
                 } else {
 
