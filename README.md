@@ -2,28 +2,39 @@
 
 Projeto desenvolvido para a disciplina de Desenvolvimento de Sistemas para Dispositivos Móveis do curso de Análise e Desenvolvimento de Sistemas.
 
-O aplicativo permite realizar o controle básico de aluguel de veículos, utilizando recursos nativos do Android, persistência local e integração com os contatos do dispositivo.
+O aplicativo foi desenvolvido para auxiliar pequenos locadores de veículos no gerenciamento da frota, clientes e locações, utilizando recursos nativos do Android, persistência local, integração com contatos do dispositivo e consumo de API REST.
 
 ## Funcionalidades
 
+- Dashboard inicial com locações ativas
 - Cadastro de veículos
 - Listagem de veículos cadastrados
-- Controle de status do veículo
+- Controle de status do veículo:
     - DISPONIVEL
     - ALUGADO
+    - MANUTENCAO
+- Validação de placa brasileira:
+    - Padrão antigo: AAA-1234
+    - Padrão Mercosul: AAA1A23
+- Validação de valor da diária
 - Acesso aos contatos do celular
 - Pesquisa de contatos por nome
 - Seleção de cliente através dos contatos do dispositivo
+- Solicitação da permissão READ_CONTACTS em tempo de execução
+- Tratamento de permissão de contatos
 - Cadastro de nova locação
-- Seleção de veículo disponível
-- Definição da data de saída
-- Definição da data prevista de entrega
+- Seleção apenas de veículos disponíveis
+- Seleção visual da data de saída utilizando DatePicker
+- Seleção visual da data prevista de entrega utilizando DatePicker
 - Cálculo automático da quantidade de diárias
 - Cálculo automático do valor total da locação
 - Listagem das locações ativas
 - Visualização dos dados do cliente e do veículo
+- Cálculo dinâmico dos dias faltantes para devolução
+- Destaque de locações em atraso
 - Finalização da locação
 - Liberação automática do veículo após a devolução
+- Sincronização de locações com API REST utilizando Retrofit 2
 
 ## Tecnologias utilizadas
 
@@ -33,78 +44,29 @@ O aplicativo permite realizar o controle básico de aluguel de veículos, utiliz
 - Material Design 3
 - Room 3
 - KSP
-- Coroutines
+- Kotlin Coroutines
 - Flow
+- StateFlow
 - Navigation Compose
 - ViewModel
+- SavedStateHandle
 - Repository
 - ContentResolver
 - ContactsContract
+- Retrofit 2
+- Gson Converter
 
 ## Arquitetura
 
-O projeto foi organizado utilizando separação de responsabilidades entre as camadas da aplicação.
+O projeto utiliza o padrão MVVM com separação de responsabilidades entre as camadas da aplicação.
 
-### UI
+Fluxo simplificado:
 
-Responsável pelas telas desenvolvidas com Jetpack Compose.
-
-Principais telas:
-
-- VeiculosScreen
-- CadastroVeiculoScreen
-- ContatosScreen
-- NovaLocacaoScreen
-- LocacoesAtivasScreen
-
-### ViewModel
-
-Responsável por manter os dados utilizados pelas telas e executar as ações da aplicação.
-
-- VeiculoViewModel
-- LocacaoViewModel
-
-### Repository
-
-Responsável por intermediar a comunicação entre ViewModel e banco de dados.
-
-- VeiculoRepository
-- LocacaoRepository
-
-### Banco de dados
-
-A persistência local é realizada com Room.
-
-Entidades:
-
-- Veiculo
-- Cliente
-- Locacao
-
-DAOs:
-
-- VeiculoDao
-- ClienteDao
-- LocacaoDao
-
-## Fluxo de uma locação
-
-1. Um veículo é cadastrado com status DISPONIVEL.
-2. O usuário acessa Nova Locação.
-3. Um contato do celular é selecionado como cliente.
-4. Um veículo disponível é selecionado.
-5. São informadas as datas de saída e entrega.
-6. O sistema calcula a quantidade de diárias.
-7. O valor total é calculado automaticamente.
-8. A locação é salva com status ATIVA.
-9. O veículo passa para o status ALUGADO.
-10. A locação aparece na tela de Locações Ativas.
-11. Ao finalizar a locação, ela deixa de ser ativa.
-12. O veículo retorna automaticamente para o status DISPONIVEL.
-
-## Permissão de contatos
-
-O aplicativo utiliza a permissão:
-
-```xml
-<uses-permission android:name="android.permission.READ_CONTACTS" />
+```text
+Jetpack Compose
+      ↓
+ViewModel
+      ↓
+Repository
+   ↙      ↘
+Room    Retrofit
