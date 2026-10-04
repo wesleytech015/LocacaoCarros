@@ -175,40 +175,64 @@ fun CadastroVeiculoScreen(
         Button(
             onClick = {
 
-                val anoConvertido = ano.toIntOrNull()
+                val anoConvertido =
+                    ano.toIntOrNull()
 
                 val diariaConvertida =
                     valorDiaria
                         .replace(",", ".")
                         .toDoubleOrNull()
 
-                if (
+                when {
+
                     marca.isBlank() ||
-                    modelo.isBlank() ||
-                    placa.isBlank() ||
-                    anoConvertido == null ||
-                    diariaConvertida == null
-                ) {
+                            modelo.isBlank() ||
+                            placa.isBlank() ||
+                            ano.isBlank() ||
+                            valorDiaria.isBlank() -> {
 
-                    mensagemErro =
-                        "Preencha todos os campos corretamente."
+                        mensagemErro =
+                            "Preencha todos os campos."
+                    }
 
-                } else if (diariaConvertida <= 0) {
+                    !placaValida(placa) -> {
 
-                    mensagemErro =
-                        "O valor da diária deve ser positivo."
+                        mensagemErro =
+                            "Placa inválida. Use AAA-1234 ou AAA1A23."
+                    }
 
-                } else {
+                    anoConvertido == null -> {
 
-                    viewModel.cadastrarVeiculo(
-                        marca = marca,
-                        modelo = modelo,
-                        placa = placa,
-                        ano = anoConvertido,
-                        valorDiaria = diariaConvertida
-                    )
+                        mensagemErro =
+                            "Ano inválido."
+                    }
 
-                    onVeiculoSalvo()
+                    diariaConvertida == null -> {
+
+                        mensagemErro =
+                            "Valor da diária inválido."
+                    }
+
+                    diariaConvertida <= 0 -> {
+
+                        mensagemErro =
+                            "O valor da diária deve ser maior que zero."
+                    }
+
+                    else -> {
+
+                        mensagemErro = ""
+
+                        viewModel.cadastrarVeiculo(
+                            marca = marca,
+                            modelo = modelo,
+                            placa = placa.trim(),
+                            ano = anoConvertido,
+                            valorDiaria = diariaConvertida
+                        )
+
+                        onVeiculoSalvo()
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -216,4 +240,21 @@ fun CadastroVeiculoScreen(
             Text("Salvar veículo")
         }
     }
+}
+
+private fun placaValida(
+    placa: String
+): Boolean {
+
+    val placaFormatada =
+        placa.uppercase().trim()
+
+    val padraoAntigo =
+        Regex("^[A-Z]{3}-\\d{4}$")
+
+    val padraoMercosul =
+        Regex("^[A-Z]{3}\\d[A-Z]\\d{2}$")
+
+    return padraoAntigo.matches(placaFormatada) ||
+            padraoMercosul.matches(placaFormatada)
 }

@@ -30,7 +30,8 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun LocacoesAtivasScreen(
     viewModel: LocacaoViewModel,
-    onNovaLocacao: () -> Unit
+    onNovaLocacao: () -> Unit,
+    onAbrirVeiculos: () -> Unit
 ) {
 
     val locacoes by viewModel.locacoesAtivas.collectAsStateWithLifecycle()
@@ -64,6 +65,14 @@ fun LocacoesAtivasScreen(
                 text = "Dashboard de Locações",
                 style = MaterialTheme.typography.headlineMedium
             )
+            Button(
+                onClick = onAbrirVeiculos,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+            ) {
+                Text("Gerenciar veículos")
+            }
 
             if (locacoes.isEmpty()) {
 

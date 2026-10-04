@@ -86,6 +86,9 @@ fun AppNavigation(
                 viewModel = locacaoViewModel,
                 onNovaLocacao = {
                     navController.navigate("nova_locacao")
+                },
+                onAbrirVeiculos = {
+                    navController.navigate("veiculos")
                 }
             )
         }
