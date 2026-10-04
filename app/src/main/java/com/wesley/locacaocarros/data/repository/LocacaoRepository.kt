@@ -5,6 +5,8 @@ import com.wesley.locacaocarros.data.local.dao.LocacaoDao
 import com.wesley.locacaocarros.data.local.dao.VeiculoDao
 import com.wesley.locacaocarros.data.local.entity.Cliente
 import com.wesley.locacaocarros.data.local.entity.Locacao
+import com.wesley.locacaocarros.data.remote.RetrofitClient
+import com.wesley.locacaocarros.data.remote.SincronizacaoRequest
 
 class LocacaoRepository(
     private val veiculoDao: VeiculoDao,
@@ -25,7 +27,6 @@ class LocacaoRepository(
         dataEntregaPrevista: Long,
         valorTotal: Double
     ) {
-
         val clienteId = clienteDao.inserir(
             Cliente(
                 contactId = contactId,
@@ -55,7 +56,6 @@ class LocacaoRepository(
         locacaoId: Int,
         veiculoId: Int
     ) {
-
         locacaoDao.atualizarStatus(
             locacaoId = locacaoId,
             status = "FINALIZADA"
@@ -65,5 +65,25 @@ class LocacaoRepository(
             veiculoId = veiculoId,
             status = "DISPONIVEL"
         )
+    }
+
+    suspend fun sincronizarLocacaoComApi(
+        locacaoId: Int,
+        veiculoId: Int
+    ): Boolean {
+        return try {
+            val resposta =
+                RetrofitClient.apiService.sincronizarLocacao(
+                    SincronizacaoRequest(
+                        tipo = "LOCACAO",
+                        descricao = "Locacao $locacaoId - Veiculo $veiculoId"
+                    )
+                )
+
+            resposta.id != null
+
+        } catch (e: Exception) {
+            false
+        }
     }
 }

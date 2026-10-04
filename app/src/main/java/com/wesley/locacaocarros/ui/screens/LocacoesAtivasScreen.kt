@@ -15,6 +15,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -30,7 +32,12 @@ fun LocacoesAtivasScreen(
     viewModel: LocacaoViewModel,
     onNovaLocacao: () -> Unit
 ) {
+
     val locacoes by viewModel.locacoesAtivas.collectAsStateWithLifecycle()
+
+    val mensagensSincronizacao = remember {
+        mutableStateMapOf<Int, String>()
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -83,6 +90,9 @@ fun LocacoesAtivasScreen(
 
                         val atrasada =
                             diasFaltantes < 0L
+
+                        val mensagemSincronizacao =
+                            mensagensSincronizacao[item.locacao.id]
 
                         Card(
                             modifier = Modifier.fillMaxWidth()
@@ -160,6 +170,47 @@ fun LocacoesAtivasScreen(
 
                                 Button(
                                     onClick = {
+                                        viewModel.sincronizarLocacao(
+                                            locacaoId = item.locacao.id,
+                                            veiculoId = item.veiculo.id
+                                        ) { sucesso ->
+
+                                            mensagensSincronizacao[
+                                                item.locacao.id
+                                            ] =
+                                                if (sucesso) {
+                                                    "Sincronização realizada com sucesso."
+                                                } else {
+                                                    "Erro ao sincronizar com a API."
+                                                }
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 12.dp)
+                                ) {
+                                    Text("Sincronizar")
+                                }
+
+                                if (mensagemSincronizacao != null) {
+
+                                    Text(
+                                        text = mensagemSincronizacao,
+                                        color = if (
+                                            mensagemSincronizacao.startsWith(
+                                                "Sincronização"
+                                            )
+                                        ) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.error
+                                        },
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
                                         viewModel.finalizarLocacao(
                                             locacaoId = item.locacao.id,
                                             veiculoId = item.veiculo.id
@@ -167,7 +218,7 @@ fun LocacoesAtivasScreen(
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(top = 12.dp)
+                                        .padding(top = 8.dp)
                                 ) {
                                     Text("Finalizar locação")
                                 }
