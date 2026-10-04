@@ -22,7 +22,7 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = "veiculos"
+        startDestination = "locacoes_ativas"
     ) {
 
         composable("veiculos") {
@@ -83,7 +83,10 @@ fun AppNavigation(
 
         composable("locacoes_ativas") {
             LocacoesAtivasScreen(
-                viewModel = locacaoViewModel
+                viewModel = locacaoViewModel,
+                onNovaLocacao = {
+                    navController.navigate("nova_locacao")
+                }
             )
         }
     }

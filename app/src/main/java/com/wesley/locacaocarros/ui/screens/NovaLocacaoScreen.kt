@@ -5,32 +5,34 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wesley.locacaocarros.data.local.entity.Veiculo
 import com.wesley.locacaocarros.viewmodel.LocacaoViewModel
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NovaLocacaoScreen(
     viewModel: LocacaoViewModel,
@@ -40,28 +42,63 @@ fun NovaLocacaoScreen(
 
     val veiculos by viewModel.veiculosDisponiveis.collectAsStateWithLifecycle()
 
+    val contato = viewModel.contatoSelecionado
+
     var veiculoSelecionado by remember {
         mutableStateOf<Veiculo?>(null)
     }
 
     var dataSaida by remember {
-        mutableStateOf("")
+        mutableStateOf<Long?>(null)
     }
 
     var dataEntrega by remember {
-        mutableStateOf("")
+        mutableStateOf<Long?>(null)
+    }
+
+    var mostrarDatePickerSaida by remember {
+        mutableStateOf(false)
+    }
+
+    var mostrarDatePickerEntrega by remember {
+        mutableStateOf(false)
     }
 
     var mensagemErro by remember {
         mutableStateOf("")
     }
 
-    val contato = viewModel.contatoSelecionado
+    val diasLocacao =
+        if (
+            dataSaida != null &&
+            dataEntrega != null &&
+            dataEntrega!! >= dataSaida!!
+        ) {
+
+            TimeUnit.MILLISECONDS
+                .toDays(
+                    dataEntrega!! - dataSaida!!
+                )
+                .toInt()
+                .coerceAtLeast(1)
+
+        } else {
+            0
+        }
+
+    val valorTotal =
+        if (
+            veiculoSelecionado != null &&
+            diasLocacao > 0
+        ) {
+            veiculoSelecionado!!.valorDiaria * diasLocacao
+        } else {
+            0.0
+        }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -73,34 +110,58 @@ fun NovaLocacaoScreen(
         )
 
         Text(
-            text = if (contato == null) {
-                "Nenhum cliente selecionado"
-            } else {
-                "Cliente: ${contato.nome} - ${contato.telefone}"
-            }
+            text = "Cliente",
+            style = MaterialTheme.typography.titleMedium
         )
 
-        Button(
-            onClick = onSelecionarContato,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                if (contato == null) {
-                    "Selecionar cliente"
-                } else {
-                    "Trocar cliente"
+        if (contato == null) {
+
+            Button(
+                onClick = onSelecionarContato,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Selecionar cliente")
+            }
+
+        } else {
+
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+
+                    Text(
+                        text = contato.nome,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text(
+                        text = contato.telefone
+                    )
                 }
-            )
+            }
+
+            Button(
+                onClick = onSelecionarContato,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Trocar cliente")
+            }
         }
 
         Text(
-            text = "Selecione o veículo:",
+            text = "Veículo",
             style = MaterialTheme.typography.titleMedium
         )
 
         if (veiculos.isEmpty()) {
 
-            Text("Nenhum veículo disponível.")
+            Text(
+                text = "Nenhum veículo disponível."
+            )
 
         } else {
 
@@ -119,11 +180,12 @@ fun NovaLocacaoScreen(
                     ) {
 
                         Column(
-                            modifier = Modifier.padding(12.dp)
+                            modifier = Modifier.padding(16.dp)
                         ) {
 
                             Text(
-                                text = "${veiculo.marca} ${veiculo.modelo}"
+                                text = "${veiculo.marca} ${veiculo.modelo}",
+                                style = MaterialTheme.typography.titleMedium
                             )
 
                             Text(
@@ -136,10 +198,12 @@ fun NovaLocacaoScreen(
                                 )
                             )
 
-                            if (veiculoSelecionado?.id == veiculo.id) {
+                            if (
+                                veiculoSelecionado?.id == veiculo.id
+                            ) {
                                 Text(
                                     text = "Selecionado",
-                                    color = MaterialTheme.colorScheme.primary
+                                    style = MaterialTheme.typography.labelLarge
                                 )
                             }
                         }
@@ -148,87 +212,76 @@ fun NovaLocacaoScreen(
             }
         }
 
-        OutlinedTextField(
-            value = dataSaida,
-            onValueChange = {
-                dataSaida = it
+        Text(
+            text = "Data de saída",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Button(
+            onClick = {
+                mostrarDatePickerSaida = true
             },
-            label = {
-                Text(
-                    text = "Data de saída - dd/MM/yyyy",
-                    color = Color.DarkGray
-                )
-            },
-            textStyle = TextStyle(
-                color = Color.Black
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedBorderColor = Color.DarkGray,
-                unfocusedBorderColor = Color.Gray,
-                cursorColor = Color.Black
-            ),
             modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = dataEntrega,
-            onValueChange = {
-                dataEntrega = it
-            },
-            label = {
-                Text(
-                    text = "Data de entrega - dd/MM/yyyy",
-                    color = Color.DarkGray
-                )
-            },
-            textStyle = TextStyle(
-                color = Color.Black
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedBorderColor = Color.DarkGray,
-                unfocusedBorderColor = Color.Gray,
-                cursorColor = Color.Black
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        val periodo = calcularPeriodo(
-            dataSaida,
-            dataEntrega
-        )
-
-        val quantidadeDias = periodo?.dias ?: 0
-
-        val valorTotal =
-            (veiculoSelecionado?.valorDiaria ?: 0.0) *
-                    quantidadeDias
-
-        if (
-            quantidadeDias > 0 &&
-            veiculoSelecionado != null
         ) {
 
             Text(
-                text = "Quantidade de diárias: $quantidadeDias"
-            )
-
-            Text(
-                text = "Valor total: R$ %.2f".format(
-                    valorTotal
-                ),
-                style = MaterialTheme.typography.titleMedium
+                text = if (dataSaida == null) {
+                    "Selecionar data de saída"
+                } else {
+                    formatarData(dataSaida!!)
+                }
             )
         }
 
-        if (mensagemErro.isNotBlank()) {
+        Text(
+            text = "Data prevista de entrega",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Button(
+            onClick = {
+                mostrarDatePickerEntrega = true
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text(
+                text = if (dataEntrega == null) {
+                    "Selecionar data de entrega"
+                } else {
+                    formatarData(dataEntrega!!)
+                }
+            )
+        }
+
+        if (
+            dataSaida != null &&
+            dataEntrega != null
+        ) {
+
+            if (dataEntrega!! < dataSaida!!) {
+
+                Text(
+                    text = "A data de entrega não pode ser anterior à data de saída.",
+                    color = MaterialTheme.colorScheme.error
+                )
+
+            } else {
+
+                Text(
+                    text = "Quantidade de diárias: $diasLocacao"
+                )
+
+                Text(
+                    text = "Valor total estimado: R$ %.2f".format(
+                        valorTotal
+                    ),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+
+        if (mensagemErro.isNotEmpty()) {
 
             Text(
                 text = mensagemErro,
@@ -239,13 +292,6 @@ fun NovaLocacaoScreen(
         Button(
             onClick = {
 
-                val veiculo = veiculoSelecionado
-
-                val periodoValidado = calcularPeriodo(
-                    dataSaida,
-                    dataEntrega
-                )
-
                 when {
 
                     contato == null -> {
@@ -253,14 +299,24 @@ fun NovaLocacaoScreen(
                             "Selecione um cliente."
                     }
 
-                    veiculo == null -> {
+                    veiculoSelecionado == null -> {
                         mensagemErro =
                             "Selecione um veículo."
                     }
 
-                    periodoValidado == null -> {
+                    dataSaida == null -> {
                         mensagemErro =
-                            "Informe datas válidas."
+                            "Selecione a data de saída."
+                    }
+
+                    dataEntrega == null -> {
+                        mensagemErro =
+                            "Selecione a data de entrega."
+                    }
+
+                    dataEntrega!! < dataSaida!! -> {
+                        mensagemErro =
+                            "A data de entrega não pode ser anterior à data de saída."
                     }
 
                     else -> {
@@ -268,12 +324,10 @@ fun NovaLocacaoScreen(
                         mensagemErro = ""
 
                         viewModel.realizarLocacao(
-                            veiculoId = veiculo.id,
-                            dataSaida = periodoValidado.inicio,
-                            dataEntregaPrevista = periodoValidado.fim,
-                            valorTotal =
-                                veiculo.valorDiaria *
-                                        periodoValidado.dias,
+                            veiculoId = veiculoSelecionado!!.id,
+                            dataSaida = dataSaida!!,
+                            dataEntregaPrevista = dataEntrega!!,
+                            valorTotal = valorTotal,
                             onSucesso = onLocacaoSalva
                         )
                     }
@@ -281,64 +335,113 @@ fun NovaLocacaoScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
+
             Text("Finalizar locação")
+        }
+    }
+
+    if (mostrarDatePickerSaida) {
+
+        val datePickerState =
+            rememberDatePickerState(
+                initialSelectedDateMillis =
+                    dataSaida ?: System.currentTimeMillis()
+            )
+
+        DatePickerDialog(
+            onDismissRequest = {
+                mostrarDatePickerSaida = false
+            },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        dataSaida =
+                            datePickerState.selectedDateMillis
+
+                        mostrarDatePickerSaida = false
+                    }
+                ) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        mostrarDatePickerSaida = false
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+
+            DatePicker(
+                state = datePickerState
+            )
+        }
+    }
+
+    if (mostrarDatePickerEntrega) {
+
+        val datePickerState =
+            rememberDatePickerState(
+                initialSelectedDateMillis =
+                    dataEntrega
+                        ?: dataSaida
+                        ?: System.currentTimeMillis()
+            )
+
+        DatePickerDialog(
+            onDismissRequest = {
+                mostrarDatePickerEntrega = false
+            },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        dataEntrega =
+                            datePickerState.selectedDateMillis
+
+                        mostrarDatePickerEntrega = false
+                    }
+                ) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        mostrarDatePickerEntrega = false
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+
+            DatePicker(
+                state = datePickerState
+            )
         }
     }
 }
 
-data class PeriodoLocacao(
-    val inicio: Long,
-    val fim: Long,
-    val dias: Int
-)
+private fun formatarData(
+    timestamp: Long
+): String {
 
-private fun calcularPeriodo(
-    dataSaida: String,
-    dataEntrega: String
-): PeriodoLocacao? {
-
-    if (
-        dataSaida.isBlank() ||
-        dataEntrega.isBlank()
-    ) {
-        return null
-    }
-
-    return try {
-
-        val formato = SimpleDateFormat(
+    val formato =
+        SimpleDateFormat(
             "dd/MM/yyyy",
             Locale.getDefault()
         )
 
-        formato.isLenient = false
-
-        val inicio =
-            formato.parse(dataSaida)?.time
-                ?: return null
-
-        val fim =
-            formato.parse(dataEntrega)?.time
-                ?: return null
-
-        if (fim < inicio) {
-            return null
-        }
-
-        val diferenca = fim - inicio
-
-        val dias = TimeUnit.MILLISECONDS
-            .toDays(diferenca)
-            .toInt()
-            .coerceAtLeast(1)
-
-        PeriodoLocacao(
-            inicio = inicio,
-            fim = fim,
-            dias = dias
-        )
-
-    } catch (_: Exception) {
-        null
-    }
+    return formato.format(
+        Date(timestamp)
+    )
 }
