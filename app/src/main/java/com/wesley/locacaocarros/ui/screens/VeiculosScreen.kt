@@ -140,6 +140,51 @@ fun VeiculosScreen(
                                 Text(
                                     text = "Status: ${veiculo.status}"
                                 )
+
+                                when (veiculo.status) {
+
+                                    "DISPONIVEL" -> {
+
+                                        Button(
+                                            onClick = {
+                                                viewModel.alterarStatusVeiculo(
+                                                    veiculoId = veiculo.id,
+                                                    status = "MANUTENCAO"
+                                                )
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(top = 12.dp)
+                                        ) {
+                                            Text("Colocar em manutenção")
+                                        }
+                                    }
+
+                                    "MANUTENCAO" -> {
+
+                                        Button(
+                                            onClick = {
+                                                viewModel.alterarStatusVeiculo(
+                                                    veiculoId = veiculo.id,
+                                                    status = "DISPONIVEL"
+                                                )
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(top = 12.dp)
+                                        ) {
+                                            Text("Tornar disponível")
+                                        }
+                                    }
+
+                                    "ALUGADO" -> {
+
+                                        Text(
+                                            text = "Veículo atualmente alugado.",
+                                            modifier = Modifier.padding(top = 12.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

@@ -40,4 +40,16 @@ class VeiculoViewModel(
             repository.inserir(veiculo)
         }
     }
+
+    fun alterarStatusVeiculo(
+        veiculoId: Int,
+        status: String
+    ) {
+        viewModelScope.launch {
+            repository.atualizarStatus(
+                veiculoId = veiculoId,
+                status = status
+            )
+        }
+    }
 }
